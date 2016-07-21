@@ -23,6 +23,7 @@ public class MainActivity extends AppCompatActivity {
     LocalStream localStream;
     VideoPlayer videoPlayer;
     ImageView iv;
+    boolean isRTCatInit = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,11 +39,18 @@ public class MainActivity extends AppCompatActivity {
         iv=(ImageView)findViewById(R.id.myImageView1);
         videoPlayer =(VideoPlayer)findViewById(R.id.video_player);
         cat = new RTCat(MainActivity.this,true,true,true,false, AppRTCAudioManager.AudioDevice.SPEAKER_PHONE,RTCat.CodecSupported.H264, L.VERBOSE);
-        cat.initVideoPlayer(videoPlayer);
+        cat.addObserver(new RTCat.RTCatObserver() {
+            @Override
+            public void init() {
+                isRTCatInit = true;
+            }
+        });
+        cat.init();
     }
 
     public void createStream(View view){
-
+        if(!isRTCatInit) return;
+        cat.initVideoPlayer(videoPlayer);
         localStream = cat.createStream(true,true,15,RTCat.VideoFormat.Lv9, LocalStream.CameraFacing.FRONT);
         localStream.addObserver(new LocalStream.StreamObserver() {
             @Override
